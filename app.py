@@ -6,74 +6,75 @@ import uvicorn
 
 app = FastAPI()
 
-class EditTask(BaseModel):
+class EditMovie(BaseModel):
     title: str
     description: str
-    done: bool
+    yearOfRelease: str
 
-class CreateTask(BaseModel):
+class CreateMovie(BaseModel):
     title: str
     description: str
+    yearOfRelease: str
 
-class Task(BaseModel):
+class Movie(BaseModel):
     id: int
     title: str
     description: str
-    done: bool = None
+    yearOfRelease: str
 
-tasks = [
+movies = [
     {
         'id': 1,
-        'title': 'Buy groceries',
-        'description': 'Milk, Cheese, Pizza, Fruit, Tylenol', 
-        'done': False
+        'title': 'Once upon a time in Hollywood...',
+        'description': 'Brand new movie by Quentin Tarantino',
+        'yearOfRelease': '2019'
     },
     {
         'id': 2,
-        'title': 'Learn Python',
-        'description': 'Need to find a good Python tutorial on the web', 
-        'done': False
+        'title': 'The Witcher',
+        'description': 'Netflix original series based on a series of novel by Andrzej Sapkovsky',
+        'yearOfRelease': '2019'
     }
 ]
 
-my_task: List[Task] = tasks
+movies_list: List[Movie] = movies
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/tasks", response_model=List[Task])
-def read_task():
-    return my_task
+@app.get("/movies", response_model=List[Movie])
+def read_movies():
+    return movies_list
 
-@app.get("/tasks/{task_id}", response_model=Task)
-def save_task(task_id: int):
-    task = list(filter(lambda t: t['id'] == task_id, tasks))
-    return task[0]
+@app.get("/movies/{id}", response_model=Movie)
+def save_movie(id: int):
+    movie = list(filter(lambda t: t['id'] == id, movies))[0]
+    return movie
 
-@app.post("/tasks", response_model=Task, status_code=201)
-def create_task(t: CreateTask):
-    task = {
-        'id': tasks[-1]['id'] + 1,
+@app.post("/movies", response_model=Movie, status_code=201)
+def create_movie(t: CreateMovie):
+    movie = {
+        'id': movies[-1]['id'] + 1,
         'title': t.title,
         'description': t.description,
-        'done': False
+        'yearOfRelease': t.yearOfRelease
     }
-    tasks.append(task)
-    return task
+    movies.append(movie)
+    return movie
 
-@app.put("/tasks/{task_id}", response_model=Task)
-def edit_task(task_id, t: EditTask):
-    newTask = {
-        'id': task_id,
+@app.put("/movies/{id}", response_model=Movie)
+def edit_movie(id: int, t: EditMovie):
+    edited_movie = {
+        'id': id,
         'title': t.title,
         'description': t.description,
-        'done': t.done
+        'yearOfRelease': t.yearOfRelease
     }
-    return newTask
+    return edited_movie
 
-@app.delete("/tasks/{task_id}", response_model=List[Task], status_code=201)
-def delete_task(task_id: int):
-    task = list(filter(lambda t: t['id'] != task_id, tasks))
-    return task
+@app.delete("/movies/{id}", response_model=List[Movie], status_code=201)
+def delete_movie(id: int):
+    movie = list(filter(lambda t: t['id'] != id, movies))[0]
+    return movie
